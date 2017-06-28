@@ -104,9 +104,9 @@ findAdjacentHole model ( row, column ) =
             else
                 False
 
-        holeInCoord coord acc =
+        holeCoord coord acc =
             case acc of
-                Just c ->
+                Just _ ->
                     acc
 
                 Nothing ->
@@ -117,7 +117,7 @@ findAdjacentHole model ( row, column ) =
                         _ ->
                             Nothing
     in
-        adjacentCoords |> filter withinBoard |> foldr holeInCoord Nothing
+        adjacentCoords |> filter withinBoard |> foldr holeCoord Nothing
 
 
 
