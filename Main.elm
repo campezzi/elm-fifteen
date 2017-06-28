@@ -176,6 +176,7 @@ tileStyles =
     , ( "width", "15vh" )
     , ( "height", "15vh" )
     , ( "box-sizing", "border-box" )
+    , ( "cursor", "pointer" )
     , ( "line-height", "15vh" )
     , ( "text-align", "center" )
     , ( "font-size", "7vh" )
@@ -186,7 +187,11 @@ tileStyles =
 
 holeStyles : Styles
 holeStyles =
-    ( "background-color", "#CECECE" ) :: tileStyles
+    append
+        tileStyles
+        [ ( "background-color", "#CECECE" )
+        , ( "cursor", "not-allowed" )
+        ]
 
 
 lineBreakStyles : Styles
