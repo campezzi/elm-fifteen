@@ -123,7 +123,7 @@ tileStyles =
     , ( "box-sizing", "border-box" )
     , ( "line-height", "30vh" )
     , ( "text-align", "center" )
-    , ( "font-size", "4em" )
+    , ( "font-size", "10vh" )
     , ( "font-weight", "bold" )
     , ( "border", "1px solid black" )
     ]
