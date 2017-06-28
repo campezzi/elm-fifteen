@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "15-Puzzle in Elm",
-    "repository": "https://github.com/campezzi/elm-fifteen",
+    "repository": "https://github.com/campezzi/elm-fifteen.git",
     "license": "BSD3",
     "source-directories": [
         "."

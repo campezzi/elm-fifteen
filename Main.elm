@@ -147,12 +147,12 @@ renderTile model row column =
         Nothing ->
             div [ style holeStyles ] []
 
-        Just number ->
+        Just tile ->
             div
                 [ style tileStyles
-                , onClick (TileClicked number ( row, column ))
+                , onClick (TileClicked tile ( row, column ))
                 ]
-                [ text (toString number) ]
+                [ text (toString tile) ]
 
 
 
