@@ -11,13 +11,8 @@ main =
     Html.program { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
-rows : Int
-rows =
-    4
-
-
-columns : Int
-columns =
+size : Int
+size =
     4
 
 
@@ -104,7 +99,7 @@ findAdjacentHole model ( row, column ) =
             ]
 
         withinBoard ( r, c ) =
-            if (r > 0) && (r <= rows) && (c > 0) && (c <= columns) then
+            if (r > 0) && (r <= size) && (c > 0) && (c <= size) then
                 True
             else
                 False
@@ -136,13 +131,13 @@ view model =
 
 renderBoard : Model -> List (Html Msg)
 renderBoard model =
-    [ div [ style boardStyles ] (concatMap (renderRow model) (range 1 rows)) ]
+    [ div [ style boardStyles ] (concatMap (renderRow model) (range 1 size)) ]
 
 
 renderRow : Model -> Row -> List (Html Msg)
 renderRow model row =
     append
-        (map (renderTile model row) (range 1 columns))
+        (map (renderTile model row) (range 1 size))
         [ div [ style lineBreakStyles ] [] ]
 
 
