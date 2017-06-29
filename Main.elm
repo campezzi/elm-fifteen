@@ -1,10 +1,11 @@
 module Main exposing (..)
 
 import List exposing (range, map, concatMap, append, filter, foldr)
-import Dict exposing (Dict, fromList, get, insert, remove)
+import Dict exposing (Dict, fromList, get, insert, remove, values)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Styles
 
 
 main =
@@ -51,25 +52,44 @@ type GameStatus
     | Finished
 
 
+
+-- [ ( ( 1, 1 ), 13 )
+-- , ( ( 1, 2 ), 2 )
+-- , ( ( 1, 3 ), 10 )
+-- , ( ( 1, 4 ), 3 )
+-- , ( ( 2, 1 ), 1 )
+-- , ( ( 2, 2 ), 12 )
+-- , ( ( 2, 3 ), 8 )
+-- , ( ( 2, 4 ), 4 )
+-- , ( ( 3, 1 ), 5 )
+-- , ( ( 3, 3 ), 9 )
+-- , ( ( 3, 4 ), 6 )
+-- , ( ( 4, 1 ), 15 )
+-- , ( ( 4, 2 ), 14 )
+-- , ( ( 4, 3 ), 11 )
+-- , ( ( 4, 4 ), 7 )
+-- ]
+
+
 init : ( Model, Cmd Msg )
 init =
     ( { board =
             fromList
-                [ ( ( 1, 1 ), 13 )
+                [ ( ( 1, 1 ), 1 )
                 , ( ( 1, 2 ), 2 )
-                , ( ( 1, 3 ), 10 )
-                , ( ( 1, 4 ), 3 )
-                , ( ( 2, 1 ), 1 )
-                , ( ( 2, 2 ), 12 )
-                , ( ( 2, 3 ), 8 )
-                , ( ( 2, 4 ), 4 )
-                , ( ( 3, 1 ), 5 )
-                , ( ( 3, 3 ), 9 )
-                , ( ( 3, 4 ), 6 )
-                , ( ( 4, 1 ), 15 )
+                , ( ( 1, 3 ), 3 )
+                , ( ( 1, 4 ), 4 )
+                , ( ( 2, 1 ), 5 )
+                , ( ( 2, 2 ), 6 )
+                , ( ( 2, 3 ), 7 )
+                , ( ( 2, 4 ), 8 )
+                , ( ( 3, 1 ), 9 )
+                , ( ( 3, 2 ), 10 )
+                , ( ( 3, 3 ), 11 )
+                , ( ( 3, 4 ), 12 )
+                , ( ( 4, 1 ), 13 )
                 , ( ( 4, 2 ), 14 )
-                , ( ( 4, 3 ), 11 )
-                , ( ( 4, 4 ), 7 )
+                , ( ( 4, 4 ), 15 )
                 ]
       , status = Playing
       }
@@ -139,8 +159,11 @@ findAdjacentHole model ( row, column ) =
 
 
 verify : Board -> GameStatus
-verify model =
-    Playing
+verify board =
+    if values board == (range 1 15) && get ( 4, 4 ) board == Nothing then
+        Finished
+    else
+        Playing
 
 
 
@@ -149,74 +172,33 @@ verify model =
 
 view : Model -> Html Msg
 view model =
-    div [] (renderBoard model)
+    if model.status == Playing then
+        div [] [ (renderBoard model.board) ]
+    else
+        div [] [ text "Well done!" ]
 
 
-renderBoard : Model -> List (Html Msg)
-renderBoard model =
-    [ div [ style boardStyles ] (concatMap (renderRow model) (range 1 size)) ]
+renderBoard : Board -> Html Msg
+renderBoard board =
+    div [ style Styles.board ] (concatMap (renderRow board) (range 1 size))
 
 
-renderRow : Model -> Row -> List (Html Msg)
-renderRow model row =
+renderRow : Board -> Row -> List (Html Msg)
+renderRow board row =
     append
-        (map (renderTile model row) (range 1 size))
-        [ div [ style lineBreakStyles ] [] ]
+        (map (renderTile board row) (range 1 size))
+        [ div [ style Styles.lineBreak ] [] ]
 
 
-renderTile : Model -> Row -> Column -> Html Msg
-renderTile model row column =
-    case get ( row, column ) model.board of
+renderTile : Board -> Row -> Column -> Html Msg
+renderTile board row column =
+    case get ( row, column ) board of
         Nothing ->
-            div [ style holeStyles ] []
+            div [ style Styles.hole ] []
 
         Just tile ->
             div
-                [ style tileStyles
+                [ style Styles.tile
                 , onClick (TileClicked tile ( row, column ))
                 ]
                 [ text (toString tile) ]
-
-
-
--- STYLES
-
-
-type alias Styles =
-    List ( String, String )
-
-
-boardStyles : Styles
-boardStyles =
-    [ ( "width", "60vh" )
-    , ( "margin", "30px auto" )
-    ]
-
-
-tileStyles : Styles
-tileStyles =
-    [ ( "float", "left" )
-    , ( "width", "15vh" )
-    , ( "height", "15vh" )
-    , ( "box-sizing", "border-box" )
-    , ( "cursor", "pointer" )
-    , ( "line-height", "15vh" )
-    , ( "text-align", "center" )
-    , ( "font-size", "7vh" )
-    , ( "font-weight", "bold" )
-    , ( "border", "1px solid black" )
-    ]
-
-
-holeStyles : Styles
-holeStyles =
-    append
-        tileStyles
-        [ ( "background-color", "#CECECE" )
-        , ( "cursor", "not-allowed" )
-        ]
-
-
-lineBreakStyles : Styles
-lineBreakStyles =
-    [ ( "clear", "both" ) ]
