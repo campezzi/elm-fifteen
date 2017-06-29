@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import List exposing (range, map, concatMap, append, filter, foldr)
 import Dict exposing (Dict, fromList, get, insert, remove, values)
-import Html exposing (Html, div, text)
+import Html exposing (Html, div, text, h3, button)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Styles
@@ -52,44 +52,25 @@ type GameStatus
     | Finished
 
 
-
--- [ ( ( 1, 1 ), 13 )
--- , ( ( 1, 2 ), 2 )
--- , ( ( 1, 3 ), 10 )
--- , ( ( 1, 4 ), 3 )
--- , ( ( 2, 1 ), 1 )
--- , ( ( 2, 2 ), 12 )
--- , ( ( 2, 3 ), 8 )
--- , ( ( 2, 4 ), 4 )
--- , ( ( 3, 1 ), 5 )
--- , ( ( 3, 3 ), 9 )
--- , ( ( 3, 4 ), 6 )
--- , ( ( 4, 1 ), 15 )
--- , ( ( 4, 2 ), 14 )
--- , ( ( 4, 3 ), 11 )
--- , ( ( 4, 4 ), 7 )
--- ]
-
-
 init : ( Model, Cmd Msg )
 init =
     ( { board =
             fromList
-                [ ( ( 1, 1 ), 1 )
+                [ ( ( 1, 1 ), 13 )
                 , ( ( 1, 2 ), 2 )
-                , ( ( 1, 3 ), 3 )
-                , ( ( 1, 4 ), 4 )
-                , ( ( 2, 1 ), 5 )
-                , ( ( 2, 2 ), 6 )
-                , ( ( 2, 3 ), 7 )
-                , ( ( 2, 4 ), 8 )
-                , ( ( 3, 1 ), 9 )
-                , ( ( 3, 2 ), 10 )
-                , ( ( 3, 3 ), 11 )
-                , ( ( 3, 4 ), 12 )
-                , ( ( 4, 1 ), 13 )
+                , ( ( 1, 3 ), 10 )
+                , ( ( 1, 4 ), 3 )
+                , ( ( 2, 1 ), 1 )
+                , ( ( 2, 2 ), 12 )
+                , ( ( 2, 3 ), 8 )
+                , ( ( 2, 4 ), 4 )
+                , ( ( 3, 1 ), 5 )
+                , ( ( 3, 3 ), 9 )
+                , ( ( 3, 4 ), 6 )
+                , ( ( 4, 1 ), 15 )
                 , ( ( 4, 2 ), 14 )
-                , ( ( 4, 4 ), 15 )
+                , ( ( 4, 3 ), 11 )
+                , ( ( 4, 4 ), 7 )
                 ]
       , status = Playing
       }
@@ -108,11 +89,15 @@ subscriptions model =
 
 type Msg
     = TileClicked Tile Coord
+    | Replay
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        Replay ->
+            init
+
         TileClicked tile coords ->
             case findAdjacentHole model coords of
                 Nothing ->
@@ -172,15 +157,13 @@ verify board =
 
 view : Model -> Html Msg
 view model =
-    if model.status == Playing then
-        div [] [ (renderBoard model.board) ]
-    else
-        div [] [ text "Well done!" ]
+    div [ style Styles.container ]
+        ([ (renderBoard model.board) ] ++ (renderFinishedScreen model.status))
 
 
 renderBoard : Board -> Html Msg
 renderBoard board =
-    div [ style Styles.board ] (concatMap (renderRow board) (range 1 size))
+    div [] (concatMap (renderRow board) (range 1 size))
 
 
 renderRow : Board -> Row -> List (Html Msg)
@@ -202,3 +185,17 @@ renderTile board row column =
                 , onClick (TileClicked tile ( row, column ))
                 ]
                 [ text (toString tile) ]
+
+
+renderFinishedScreen : GameStatus -> List (Html Msg)
+renderFinishedScreen status =
+    case status of
+        Playing ->
+            []
+
+        Finished ->
+            [ div [ style Styles.victoryOverlay ]
+                [ h3 [ style Styles.victoryTitle ] [ text "YOU WIN!" ]
+                , button [ style Styles.replayButton, onClick Replay ] [ text "Play Again" ]
+                ]
+            ]

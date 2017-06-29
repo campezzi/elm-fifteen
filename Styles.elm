@@ -7,9 +7,10 @@ type alias Styles =
     List ( String, String )
 
 
-board : Styles
-board =
-    [ ( "width", "60vh" )
+container : Styles
+container =
+    [ ( "position", "relative " )
+    , ( "width", "60vh" )
     , ( "margin", "30px auto" )
     ]
 
@@ -41,3 +42,34 @@ hole =
 lineBreak : Styles
 lineBreak =
     [ ( "clear", "both" ) ]
+
+
+victoryOverlay : Styles
+victoryOverlay =
+    [ ( "position", "absolute" )
+    , ( "z-index", "999" )
+    , ( "background-color", "rgba(255,255,255,0.95)" )
+    , ( "top", "0" )
+    , ( "bottom", "0" )
+    , ( "left", "0" )
+    , ( "right", "0" )
+    , ( "display", "flex" )
+    , ( "flex-direction", "column" )
+    , ( "justify-content", "center" )
+    , ( "align-items", "center" )
+    ]
+
+
+victoryTitle : Styles
+victoryTitle =
+    [ ( "font-size", "10vh" )
+    , ( "margin", "0" )
+    ]
+
+
+replayButton : Styles
+replayButton =
+    [ ( "font-size", "20px" )
+    , ( "margin", "0" )
+    , ( "padding", "10px" )
+    ]
