@@ -21,6 +21,12 @@ size =
 
 
 type alias Model =
+    { board : Board
+    , status : GameStatus
+    }
+
+
+type alias Board =
     Dict Coord Tile
 
 
@@ -40,25 +46,33 @@ type alias Tile =
     Int
 
 
+type GameStatus
+    = Playing
+    | Finished
+
+
 init : ( Model, Cmd Msg )
 init =
-    ( fromList
-        [ ( ( 1, 1 ), 13 )
-        , ( ( 1, 2 ), 2 )
-        , ( ( 1, 3 ), 10 )
-        , ( ( 1, 4 ), 3 )
-        , ( ( 2, 1 ), 1 )
-        , ( ( 2, 2 ), 12 )
-        , ( ( 2, 3 ), 8 )
-        , ( ( 2, 4 ), 4 )
-        , ( ( 3, 1 ), 5 )
-        , ( ( 3, 3 ), 9 )
-        , ( ( 3, 4 ), 6 )
-        , ( ( 4, 1 ), 15 )
-        , ( ( 4, 2 ), 14 )
-        , ( ( 4, 3 ), 11 )
-        , ( ( 4, 4 ), 7 )
-        ]
+    ( { board =
+            fromList
+                [ ( ( 1, 1 ), 13 )
+                , ( ( 1, 2 ), 2 )
+                , ( ( 1, 3 ), 10 )
+                , ( ( 1, 4 ), 3 )
+                , ( ( 2, 1 ), 1 )
+                , ( ( 2, 2 ), 12 )
+                , ( ( 2, 3 ), 8 )
+                , ( ( 2, 4 ), 4 )
+                , ( ( 3, 1 ), 5 )
+                , ( ( 3, 3 ), 9 )
+                , ( ( 3, 4 ), 6 )
+                , ( ( 4, 1 ), 15 )
+                , ( ( 4, 2 ), 14 )
+                , ( ( 4, 3 ), 11 )
+                , ( ( 4, 4 ), 7 )
+                ]
+      , status = Playing
+      }
     , Cmd.none
     )
 
@@ -85,7 +99,11 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just holeCoords ->
-                    ( model |> insert holeCoords tile |> remove coords, Cmd.none )
+                    let
+                        updatedBoard =
+                            model.board |> insert holeCoords tile |> remove coords
+                    in
+                        ( { board = updatedBoard, status = verify updatedBoard }, Cmd.none )
 
 
 findAdjacentHole : Model -> Coord -> Maybe Coord
@@ -110,7 +128,7 @@ findAdjacentHole model ( row, column ) =
                     acc
 
                 Nothing ->
-                    case get coord model of
+                    case get coord model.board of
                         Nothing ->
                             Just coord
 
@@ -118,6 +136,11 @@ findAdjacentHole model ( row, column ) =
                             Nothing
     in
         adjacentCoords |> filter withinBoard |> foldr holeCoord Nothing
+
+
+verify : Board -> GameStatus
+verify model =
+    Playing
 
 
 
@@ -143,7 +166,7 @@ renderRow model row =
 
 renderTile : Model -> Row -> Column -> Html Msg
 renderTile model row column =
-    case get ( row, column ) model of
+    case get ( row, column ) model.board of
         Nothing ->
             div [ style holeStyles ] []
 
