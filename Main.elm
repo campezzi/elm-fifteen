@@ -2,11 +2,13 @@ module Main exposing (..)
 
 import List exposing (range, map, concatMap, append, filter, foldr)
 import Dict exposing (fromList, get, insert, remove, values)
+import Random exposing (generate)
 import Html exposing (Html, div, text, h3, button)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Board exposing (..)
 import Styles
+import Debug exposing (log)
 
 
 main : Program Never Model Msg
@@ -31,10 +33,10 @@ type GameStatus
 
 init : ( Model, Cmd Msg )
 init =
-    ( { board = solvableBoard
+    ( { board = emptyBoard
       , status = Playing
       }
-    , Cmd.none
+    , generate BoardGenerated randomBoard
     )
 
 
@@ -48,13 +50,17 @@ subscriptions model =
 
 
 type Msg
-    = TileClicked Tile Coord
+    = BoardGenerated Board
+    | TileClicked Tile Coord
     | Replay
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        BoardGenerated board ->
+            ( { board = board, status = verify board }, Cmd.none )
+
         Replay ->
             init
 

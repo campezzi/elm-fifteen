@@ -1,7 +1,22 @@
-module Board exposing (..)
+module Board
+    exposing
+        ( Board
+        , Row
+        , Column
+        , Coord
+        , Tile
+        , emptyBoard
+        , randomBoard
+        , size
+        , isFinished
+        , findAdjacentHole
+        , moveTile
+        )
 
 import Dict exposing (Dict, fromList, insert, get, remove, values)
-import List exposing (filter, range, foldr)
+import List exposing (concatMap, filter, map, map2, range, foldr)
+import Random exposing (Generator, andThen)
+import Random.List exposing (shuffle)
 
 
 type alias Board =
@@ -27,6 +42,47 @@ type alias Tile =
 size : Int
 size =
     4
+
+
+coords : List Coord
+coords =
+    let
+        rowCoords row =
+            map (coord row) (range 1 size)
+
+        coord row column =
+            ( row, column )
+    in
+        concatMap rowCoords (range 1 size)
+
+
+sequentialTiles : List (Maybe Tile)
+sequentialTiles =
+    [ Nothing ] ++ map Just (range 1 15)
+
+
+emptyBoard : Board
+emptyBoard =
+    fromList []
+
+
+makeBoard : List (Maybe Tile) -> Board
+makeBoard tiles =
+    let
+        fillBoard ( coord, tile ) board =
+            case tile of
+                Nothing ->
+                    board
+
+                Just x ->
+                    insert coord x board
+    in
+        map2 (,) coords tiles |> foldr fillBoard (fromList [])
+
+
+randomBoard : Generator Board
+randomBoard =
+    Random.map makeBoard (shuffle sequentialTiles)
 
 
 solvableBoard : Board
