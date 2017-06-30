@@ -17,7 +17,7 @@ module Board
         )
 
 import Dict exposing (Dict, fromList, insert, get, remove, values)
-import List exposing (concatMap, filter, map, map2, range, foldr)
+import List exposing (concatMap, filter, length, map, map2, range, foldr)
 import Random exposing (Generator)
 import Random.List exposing (shuffle)
 
@@ -109,14 +109,12 @@ isSolvable board =
                 _ :: [] ->
                     acc
 
-                a :: b :: rest ->
-                    acc |> incIfInversion a b |> countInversions (b :: rest)
-
-        incIfInversion a b acc =
-            if a > b then
-                acc + 1
-            else
-                acc
+                x :: ys ->
+                    let
+                        xInversions =
+                            ys |> filter (\y -> x > y) |> length
+                    in
+                        xInversions + (countInversions ys acc)
 
         ( r, _ ) =
             findHole board
