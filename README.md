@@ -1,5 +1,12 @@
 # Fifteen in Elm
 
-[15 Puzzle](https://www.wikiwand.com/en/15_puzzle) in Elm. It generates random board configurations until it finds one that is guaranteed to be solvable. That looks a bit ugly, but it works :bowtie:
+A simple [15 Puzzle](https://www.wikiwand.com/en/15_puzzle) in Elm. [Play it here!](https://s3.amazonaws.com/campezzi/elm/fifteen.html) :bowtie:
 
-[Play it here!](https://s3.amazonaws.com/campezzi/elm/fifteen.html)
+### Roadmap
+- [x] Render board
+- [x] Move tiles around (by clicking)
+- [x] Detect victory conditions
+- [x] Replay after winning
+- [x] Generate random boards
+- [x] Ensure generated boards are solvable
+- [ ] Move tiles around (with keyboard)
