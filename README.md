@@ -9,4 +9,4 @@ A simple [15 Puzzle](https://www.wikiwand.com/en/15_puzzle) in Elm. [Play it her
 - [x] Replay after winning
 - [x] Generate random boards
 - [x] Ensure generated boards are solvable
-- [ ] Move tiles around (with keyboard)
+- [x] Move tiles around (with keyboard)
