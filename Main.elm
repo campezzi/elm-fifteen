@@ -8,7 +8,6 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Board exposing (..)
 import Styles
-import Debug exposing (log)
 
 
 main : Program Never Model Msg
