@@ -16,7 +16,7 @@ module Board
 
 import Dict exposing (Dict, fromList, insert, get, remove, values)
 import List exposing (concatMap, filter, map, map2, range, foldr)
-import Random exposing (Generator, andThen)
+import Random exposing (Generator)
 import Random.List exposing (shuffle)
 
 
