@@ -8,6 +8,7 @@ module Board
         , emptyBoard
         , randomBoard
         , size
+        , isSolvable
         , isFinished
         , findAdjacentHole
         , moveTile
@@ -85,46 +86,49 @@ randomBoard =
     Random.map makeBoard (shuffle sequentialTiles)
 
 
-solvableBoard : Board
-solvableBoard =
-    fromList
-        [ ( ( 1, 1 ), 13 )
-        , ( ( 1, 2 ), 2 )
-        , ( ( 1, 3 ), 10 )
-        , ( ( 1, 4 ), 3 )
-        , ( ( 2, 1 ), 1 )
-        , ( ( 2, 2 ), 12 )
-        , ( ( 2, 3 ), 8 )
-        , ( ( 2, 4 ), 4 )
-        , ( ( 3, 1 ), 5 )
-        , ( ( 3, 3 ), 9 )
-        , ( ( 3, 4 ), 6 )
-        , ( ( 4, 1 ), 15 )
-        , ( ( 4, 2 ), 14 )
-        , ( ( 4, 3 ), 11 )
-        , ( ( 4, 4 ), 7 )
-        ]
+isSolvable : Board -> Bool
+isSolvable board =
+    let
+        countInversions tiles acc =
+            case tiles of
+                [] ->
+                    acc
+
+                _ :: [] ->
+                    acc
+
+                a :: b :: rest ->
+                    acc |> incrementIfInversion a b |> countInversions (b :: rest)
+
+        incrementIfInversion a b acc =
+            if a > b then
+                acc + 1
+            else
+                acc
+
+        inversions =
+            countInversions (values board) 0
+
+        ( r, _ ) =
+            findHole board
+
+        holeRow =
+            size - r + 1
+    in
+        if isOdd size then
+            (isEven inversions)
+        else
+            ((isEven holeRow && isOdd inversions) || (isOdd holeRow && isEven inversions))
 
 
-almostSolvedBoard : Board
-almostSolvedBoard =
-    fromList
-        [ ( ( 1, 1 ), 1 )
-        , ( ( 1, 2 ), 2 )
-        , ( ( 1, 3 ), 3 )
-        , ( ( 1, 4 ), 4 )
-        , ( ( 2, 1 ), 5 )
-        , ( ( 2, 2 ), 6 )
-        , ( ( 2, 3 ), 7 )
-        , ( ( 2, 4 ), 8 )
-        , ( ( 3, 1 ), 9 )
-        , ( ( 3, 2 ), 10 )
-        , ( ( 3, 3 ), 11 )
-        , ( ( 3, 4 ), 12 )
-        , ( ( 4, 1 ), 13 )
-        , ( ( 4, 2 ), 14 )
-        , ( ( 4, 4 ), 15 )
-        ]
+isEven : Int -> Bool
+isEven number =
+    number % 2 == 0
+
+
+isOdd : Int -> Bool
+isOdd =
+    not << isEven
 
 
 isFinished : Board -> Bool
@@ -177,6 +181,18 @@ findAdjacentHole board ( row, column ) =
                             Nothing
     in
         adjacentTo ( row, column ) |> foldr findHoleCoord Nothing
+
+
+findHole : Board -> Coord
+findHole board =
+    let
+        go coord acc =
+            if get coord board == Nothing then
+                coord
+            else
+                acc
+    in
+        coords |> foldr go ( 1, 1 )
 
 
 moveTile : Tile -> Coord -> Coord -> Board -> Board

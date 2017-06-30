@@ -58,7 +58,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         BoardGenerated board ->
-            ( { board = board, status = verify board }, Cmd.none )
+            if isSolvable board && not (isFinished board) then
+                ( { board = board, status = Playing }, Cmd.none )
+            else
+                init
 
         Replay ->
             init
