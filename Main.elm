@@ -93,7 +93,7 @@ verify board =
 
 view : Model -> Html Msg
 view model =
-    div [ style Styles.container ]
+    div [ style (Styles.container size) ]
         ([ (renderBoard model.board) ] ++ (renderFinishedScreen model.status))
 
 

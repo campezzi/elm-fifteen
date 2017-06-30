@@ -59,7 +59,7 @@ coords =
 
 sequentialTiles : List (Maybe Tile)
 sequentialTiles =
-    [ Nothing ] ++ map Just (range 1 15)
+    [ Nothing ] ++ map Just (range 1 (size ^ 2 - 1))
 
 
 emptyBoard : Board

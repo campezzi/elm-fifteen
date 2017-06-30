@@ -7,10 +7,10 @@ type alias Styles =
     List ( String, String )
 
 
-container : Styles
-container =
+container : Int -> Styles
+container size =
     [ ( "position", "relative " )
-    , ( "width", "60vh" )
+    , ( "width", (toString (size * 15)) ++ "vh" )
     , ( "margin", "30px auto" )
     ]
 
