@@ -89,6 +89,9 @@ randomBoard =
 isSolvable : Board -> Bool
 isSolvable board =
     let
+        inversions =
+            countInversions (values board) 0
+
         countInversions tiles acc =
             case tiles of
                 [] ->
@@ -98,16 +101,13 @@ isSolvable board =
                     acc
 
                 a :: b :: rest ->
-                    acc |> incrementIfInversion a b |> countInversions (b :: rest)
+                    acc |> incIfInversion a b |> countInversions (b :: rest)
 
-        incrementIfInversion a b acc =
+        incIfInversion a b acc =
             if a > b then
                 acc + 1
             else
                 acc
-
-        inversions =
-            countInversions (values board) 0
 
         ( r, _ ) =
             findHole board
