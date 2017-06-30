@@ -1,20 +1,17 @@
 module Main exposing (..)
 
 import List exposing (range, map, concatMap, append, filter, foldr)
-import Dict exposing (Dict, fromList, get, insert, remove, values)
+import Dict exposing (fromList, get, insert, remove, values)
 import Html exposing (Html, div, text, h3, button)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Board exposing (..)
 import Styles
 
 
+main : Program Never Model Msg
 main =
     Html.program { init = init, update = update, view = view, subscriptions = subscriptions }
-
-
-size : Int
-size =
-    4
 
 
 
@@ -27,26 +24,6 @@ type alias Model =
     }
 
 
-type alias Board =
-    Dict Coord Tile
-
-
-type alias Row =
-    Int
-
-
-type alias Column =
-    Int
-
-
-type alias Coord =
-    ( Row, Column )
-
-
-type alias Tile =
-    Int
-
-
 type GameStatus
     = Playing
     | Finished
@@ -54,24 +31,7 @@ type GameStatus
 
 init : ( Model, Cmd Msg )
 init =
-    ( { board =
-            fromList
-                [ ( ( 1, 1 ), 13 )
-                , ( ( 1, 2 ), 2 )
-                , ( ( 1, 3 ), 10 )
-                , ( ( 1, 4 ), 3 )
-                , ( ( 2, 1 ), 1 )
-                , ( ( 2, 2 ), 12 )
-                , ( ( 2, 3 ), 8 )
-                , ( ( 2, 4 ), 4 )
-                , ( ( 3, 1 ), 5 )
-                , ( ( 3, 3 ), 9 )
-                , ( ( 3, 4 ), 6 )
-                , ( ( 4, 1 ), 15 )
-                , ( ( 4, 2 ), 14 )
-                , ( ( 4, 3 ), 11 )
-                , ( ( 4, 4 ), 7 )
-                ]
+    ( { board = solvableBoard
       , status = Playing
       }
     , Cmd.none
@@ -99,53 +59,21 @@ update msg model =
             init
 
         TileClicked tile coords ->
-            case findAdjacentHole model coords of
+            case findAdjacentHole model.board coords of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just holeCoords ->
                     let
                         updatedBoard =
-                            model.board |> insert holeCoords tile |> remove coords
+                            model.board |> moveTile tile coords holeCoords
                     in
                         ( { board = updatedBoard, status = verify updatedBoard }, Cmd.none )
 
 
-findAdjacentHole : Model -> Coord -> Maybe Coord
-findAdjacentHole model ( row, column ) =
-    let
-        adjacentCoords =
-            [ ( row, column + 1 )
-            , ( row + 1, column )
-            , ( row, column - 1 )
-            , ( row - 1, column )
-            ]
-
-        withinBoard ( r, c ) =
-            if (r > 0) && (r <= size) && (c > 0) && (c <= size) then
-                True
-            else
-                False
-
-        holeCoord coord acc =
-            case acc of
-                Just _ ->
-                    acc
-
-                Nothing ->
-                    case get coord model.board of
-                        Nothing ->
-                            Just coord
-
-                        _ ->
-                            Nothing
-    in
-        adjacentCoords |> filter withinBoard |> foldr holeCoord Nothing
-
-
 verify : Board -> GameStatus
 verify board =
-    if values board == (range 1 15) && get ( 4, 4 ) board == Nothing then
+    if isFinished board then
         Finished
     else
         Playing
