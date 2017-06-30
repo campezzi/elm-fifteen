@@ -5,6 +5,7 @@ module Board
         , Column
         , Coord
         , Tile
+        , Direction(..)
         , emptyBoard
         , randomBoard
         , size
@@ -12,6 +13,7 @@ module Board
         , isFinished
         , findAdjacentHole
         , moveTile
+        , slideTo
         )
 
 import Dict exposing (Dict, fromList, insert, get, remove, values)
@@ -40,31 +42,26 @@ type alias Tile =
     Int
 
 
+type Direction
+    = Left
+    | Up
+    | Right
+    | Down
+
+
 size : Int
 size =
     4
 
 
-coords : List Coord
-coords =
-    let
-        rowCoords row =
-            map (coord row) (range 1 size)
-
-        coord row column =
-            ( row, column )
-    in
-        concatMap rowCoords (range 1 size)
-
-
-sequentialTiles : List (Maybe Tile)
-sequentialTiles =
-    [ Nothing ] ++ map Just (range 1 (size ^ 2 - 1))
-
-
 emptyBoard : Board
 emptyBoard =
     fromList []
+
+
+randomBoard : Generator Board
+randomBoard =
+    Random.map makeBoard (shuffle orderedTiles)
 
 
 makeBoard : List (Maybe Tile) -> Board
@@ -81,9 +78,21 @@ makeBoard tiles =
         map2 (,) coords tiles |> foldr fillBoard (fromList [])
 
 
-randomBoard : Generator Board
-randomBoard =
-    Random.map makeBoard (shuffle sequentialTiles)
+orderedTiles : List (Maybe Tile)
+orderedTiles =
+    [ Nothing ] ++ map Just (range 1 (size ^ 2 - 1))
+
+
+coords : List Coord
+coords =
+    let
+        rowCoords row =
+            map (coord row) (range 1 size)
+
+        coord row column =
+            ( row, column )
+    in
+        concatMap rowCoords (range 1 size)
 
 
 isSolvable : Board -> Bool
@@ -113,22 +122,18 @@ isSolvable board =
             findHole board
 
         holeRow =
-            size - r + 1
+            size - r
+
+        isEven number =
+            number % 2 == 0
+
+        isOdd =
+            not << isEven
     in
         if isOdd size then
             (isEven inversions)
         else
-            ((isEven holeRow && isOdd inversions) || (isOdd holeRow && isEven inversions))
-
-
-isEven : Int -> Bool
-isEven number =
-    number % 2 == 0
-
-
-isOdd : Int -> Bool
-isOdd =
-    not << isEven
+            ((isOdd holeRow && isOdd inversions) || (isEven holeRow && isEven inversions))
 
 
 isFinished : Board -> Bool
@@ -146,14 +151,25 @@ isFinished board =
             False
 
 
+shift : Coord -> Direction -> Coord
+shift ( row, column ) direction =
+    case direction of
+        Left ->
+            ( row, column - 1 )
+
+        Up ->
+            ( row - 1, column )
+
+        Right ->
+            ( row, column + 1 )
+
+        Down ->
+            ( row + 1, column )
+
+
 adjacentTo : Coord -> List Coord
-adjacentTo ( row, column ) =
-    filter withinBoard
-        [ ( row, column + 1 )
-        , ( row + 1, column )
-        , ( row, column - 1 )
-        , ( row - 1, column )
-        ]
+adjacentTo coord =
+    map (shift coord) [ Left, Up, Right, Down ] |> filter withinBoard
 
 
 withinBoard : Coord -> Bool
@@ -198,3 +214,39 @@ findHole board =
 moveTile : Tile -> Coord -> Coord -> Board -> Board
 moveTile tile tileCoord holeCoord board =
     board |> insert holeCoord tile |> remove tileCoord
+
+
+slideTo : Direction -> Board -> Board
+slideTo direction board =
+    let
+        holeCoord =
+            board |> findHole
+
+        tileCoord =
+            shift holeCoord (opposite direction)
+
+        possibleTile =
+            board |> get tileCoord
+    in
+        case possibleTile of
+            Just tile ->
+                board |> moveTile tile tileCoord holeCoord
+
+            Nothing ->
+                board
+
+
+opposite : Direction -> Direction
+opposite direction =
+    case direction of
+        Left ->
+            Right
+
+        Up ->
+            Down
+
+        Right ->
+            Left
+
+        Down ->
+            Up

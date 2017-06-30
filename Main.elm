@@ -6,6 +6,7 @@ import Random exposing (generate)
 import Html exposing (Html, div, text, h3, button)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Keyboard exposing (KeyCode, ups)
 import Board exposing (..)
 import Styles
 
@@ -41,7 +42,24 @@ init =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    let
+        arrowKeys =
+            fromList
+                [ ( 37, Left )
+                , ( 38, Up )
+                , ( 39, Right )
+                , ( 40, Down )
+                ]
+
+        keyPressed code =
+            case get code arrowKeys of
+                Just direction ->
+                    ArrowKeyPressed direction
+
+                _ ->
+                    OtherKeyPressed code
+    in
+        ups keyPressed
 
 
 
@@ -51,6 +69,8 @@ subscriptions model =
 type Msg
     = BoardGenerated Board
     | TileClicked Tile Coord
+    | ArrowKeyPressed Direction
+    | OtherKeyPressed KeyCode
     | Replay
 
 
@@ -66,6 +86,13 @@ update msg model =
         Replay ->
             init
 
+        ArrowKeyPressed direction ->
+            let
+                updatedBoard =
+                    model.board |> slideTo direction
+            in
+                ( { board = updatedBoard, status = verify updatedBoard }, Cmd.none )
+
         TileClicked tile coords ->
             case findAdjacentHole model.board coords of
                 Nothing ->
@@ -77,6 +104,9 @@ update msg model =
                             model.board |> moveTile tile coords holeCoords
                     in
                         ( { board = updatedBoard, status = verify updatedBoard }, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 verify : Board -> GameStatus
