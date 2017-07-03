@@ -10,3 +10,4 @@ A simple [15 Puzzle](https://www.wikiwand.com/en/15_puzzle) in Elm. [Play it her
 - [x] Generate random boards
 - [x] Ensure generated boards are solvable
 - [x] Move tiles around (with keyboard)
+- [ ] Control size of the board with a URL parameter
