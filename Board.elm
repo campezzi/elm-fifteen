@@ -99,22 +99,19 @@ isSolvable : Board -> Bool
 isSolvable board =
     let
         inversions =
-            countInversions (values board) 0
+            countInversions (values board)
 
-        countInversions tiles acc =
+        countInversions tiles =
             case tiles of
                 [] ->
-                    acc
-
-                _ :: [] ->
-                    acc
+                    0
 
                 x :: ys ->
                     let
                         xInversions =
                             ys |> filter (\y -> x > y) |> length
                     in
-                        xInversions + (countInversions ys acc)
+                        xInversions + (countInversions ys)
 
         ( r, _ ) =
             findHole board
@@ -129,7 +126,7 @@ isSolvable board =
             not << isEven
     in
         if isOdd size then
-            (isEven inversions)
+            isEven inversions
         else
             ((isOdd holeRow && isOdd inversions) || (isEven holeRow && isEven inversions))
 
